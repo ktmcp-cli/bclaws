@@ -1,0 +1,657 @@
+#!/usr/bin/env node
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+
+const API_SPEC = {
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://www.bclaws.ca/civix"
+    },
+    {
+      "url": "https://www.bclaws.ca/civix"
+    }
+  ],
+  "info": {
+    "description": "BC Laws is an electronic library providing free public access to the laws of British Columbia. BC Laws is hosted by the Queen's Printer of British Columbia and published in partnership with the Ministry of Justice and the Law Clerk of the Legislative Assembly.BC Laws contains a comprehensive collection of BC legislation and related materials. It is available on the internet in two forms:First: The library is available as a web site in which users can browse and search the laws of British Columbia.Second: The library is available as a portal to legislation in raw XML data format, accessible via the BC Laws API2. This direct access to raw data is intended to enable third parties to build or add their own custom applications based on the structure of the data and all the associated search functionality inherent in that structure. The BC Laws website itself is an example of one such application. \n\nPlease note that you may experience issues when submitting requests to the delivery or test environment if using this [OpenAPI specification](https://github.com/bcgov/api-specs) in other API console viewers.",
+    "license": {
+      "name": "Queen's Printer License",
+      "url": "http://www.bclaws.ca/standards/2014/QP-License_1.0.html"
+    },
+    "termsOfService": "http://www2.gov.bc.ca/gov/content?id=D1EE0A405E584363B205CD4353E02C88",
+    "title": "BC Laws",
+    "version": "1.0.0",
+    "x-apisguru-categories": [
+      "open_data"
+    ],
+    "x-logo": {
+      "url": "https://api.apis.guru/v2/cache/logo/https_avatars1.githubusercontent.com_u_916280.jpeg"
+    },
+    "x-origin": [
+      {
+        "converter": {
+          "url": "https://github.com/mermade/oas-kit",
+          "version": "2.6.2"
+        },
+        "format": "openapi",
+        "url": "https://raw.githubusercontent.com/bcgov/api-specs/master/bclaws/bclaws.json",
+        "version": "3.0"
+      }
+    ],
+    "x-providerName": "bclaws.ca",
+    "x-serviceName": "bclaws"
+  },
+  "externalDocs": {
+    "description": "Additional API Documentation",
+    "url": "ttp://www.bclaws.ca/civix/template/complete/api/index.html"
+  },
+  "tags": [
+    {
+      "name": "content"
+    },
+    {
+      "name": "document"
+    },
+    {
+      "name": "search"
+    }
+  ],
+  "paths": {
+    "/content/{aspectId}": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Describes the documents and directories available within a specific 'aspect' (content group) of the BCLaws library",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/content/{aspectId}/{civixDocumentId}": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "The document identification code for an index or directory",
+            "in": "path",
+            "name": "civixDocumentId",
+            "required": true,
+            "schema": {
+              "default": "statreg",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Lists the metadata available for the specified index or directory from the BCLaws legislative respository",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/document/id/{aspectId}/{civixIndexId}/{civixDocumentId}": {
+      "get": {
+        "description": "The /document API allows you to retrieve actual documents from the BCLaws legislative repository. To retrieve a document from the repository you need the aspect identifier and two other specific pieces of information about the document: the index identifier and the document identifier. These unique identifiers can be retrieved from the /content API.",
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Index identification code",
+            "in": "path",
+            "name": "civixIndexId",
+            "required": true,
+            "schema": {
+              "default": "statreg",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The document identification code for an index or directory",
+            "in": "path",
+            "name": "civixDocumentId",
+            "required": true,
+            "schema": {
+              "default": "01009_01",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Retrieves a specific document from the BCLaws legislative repository (HTML format)",
+        "tags": [
+          "document"
+        ]
+      }
+    },
+    "/document/id/{aspectId}/{civixIndexId}/{civixDocumentId}/search/{searchString}": {
+      "get": {
+        "description": "The /document API allows you to retrieve actual documents from the BCLaws legislative repository. To retrieve a document from the repository you need the aspect identifier and two other specific pieces of information about the document: the index identifier and the document identifier. These unique identifiers can be retrieved from the /content API.",
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Index identification code",
+            "in": "path",
+            "name": "civixIndexId",
+            "required": true,
+            "schema": {
+              "default": "statreg",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The document identification code for an index or directory",
+            "in": "path",
+            "name": "civixDocumentId",
+            "required": true,
+            "schema": {
+              "default": "01009_01",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The text to search for within the document",
+            "in": "path",
+            "name": "searchString",
+            "required": true,
+            "schema": {
+              "default": "water",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Retrieves a specific document from the BCLaws legislative repository with search text highlighted (HTML format)",
+        "tags": [
+          "document"
+        ]
+      }
+    },
+    "/document/id/{aspectId}/{civixIndexId}/{civixDocumentId}/xml": {
+      "get": {
+        "description": "The /document API allows you to retrieve actual documents from the BCLaws legislative repository. To retrieve a document from the repository you need the aspect identifier and two other specific pieces of information about the document: the index identifier and the document identifier. These unique identifiers can be retrieved from the /content API.",
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Index identification code",
+            "in": "path",
+            "name": "civixIndexId",
+            "required": true,
+            "schema": {
+              "default": "statreg",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The document identification code for an index or directory",
+            "in": "path",
+            "name": "civixDocumentId",
+            "required": true,
+            "schema": {
+              "default": "01009_01",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Retrieves a specific document from the BCLaws legislative repository (XML format)",
+        "tags": [
+          "document"
+        ]
+      }
+    },
+    "/document/id/{aspectId}/{civixIndexId}/{civixDocumentId}/xml/search/{searchString}": {
+      "get": {
+        "description": "The /document API allows you to retrieve actual documents from the BCLaws legislative repository. To retrieve a document from the repository you need the aspect identifier and two other specific pieces of information about the document: the index identifier and the document identifier. These unique identifiers can be retrieved from the /content API.",
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Index identification code",
+            "in": "path",
+            "name": "civixIndexId",
+            "required": true,
+            "schema": {
+              "default": "statreg",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The document identification code for an index or directory",
+            "in": "path",
+            "name": "civixDocumentId",
+            "required": true,
+            "schema": {
+              "default": "01009_01",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The text to search for within the document",
+            "in": "path",
+            "name": "searchString",
+            "required": true,
+            "schema": {
+              "default": "water",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List documents and directories within the aspect."
+          }
+        },
+        "summary": "Retrieves a specific document from the BCLaws legislative repository with search text highlighted (XML format)",
+        "tags": [
+          "document"
+        ]
+      }
+    },
+    "/search/{aspectId}/fullsearch": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The identifier of the 'aspect' (content group) to search",
+            "in": "path",
+            "name": "aspectId",
+            "required": true,
+            "schema": {
+              "default": "complete",
+              "enum": [
+                "complete",
+                "corpreg",
+                "bcgaz1",
+                "bcgaz2",
+                "oic",
+                "psl",
+                "ecb",
+                "hscr",
+                "arch_oic"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "query term",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "default": "water",
+              "type": "string"
+            }
+          },
+          {
+            "description": "first hit (start index)",
+            "in": "query",
+            "name": "s",
+            "required": true,
+            "schema": {
+              "default": "0",
+              "type": "string"
+            }
+          },
+          {
+            "description": "last hit (end index)",
+            "in": "query",
+            "name": "e",
+            "required": true,
+            "schema": {
+              "default": 20,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "number of fragment snippets to return (< 10)",
+            "in": "query",
+            "name": "nFrag",
+            "required": true,
+            "schema": {
+              "default": 5,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "length of fragment snippets (< 200)",
+            "in": "query",
+            "name": "lFrag",
+            "required": true,
+            "schema": {
+              "default": 100,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of metadata available for the specified aspect and search term"
+          }
+        },
+        "summary": "A listing of metadata available for the specified aspect and search term from the BCLaws legislative repository",
+        "tags": [
+          "search"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+};
+
+interface ToolParameter {
+  type: string;
+  description?: string;
+  enum?: string[];
+  items?: { type: string };
+}
+
+interface Tool {
+  name: string;
+  description: string;
+  inputSchema: {
+    type: string;
+    properties: Record<string, ToolParameter>;
+    required?: string[];
+  };
+  method: string;
+  path: string;
+}
+
+function generateTools(): Tool[] {
+  const tools: Tool[] = [];
+  const paths = API_SPEC.paths || {};
+
+  for (const [path, pathItem] of Object.entries(paths)) {
+    for (const [method, operation] of Object.entries(pathItem as any)) {
+      if (!["get", "post", "put", "patch", "delete"].includes(method)) continue;
+
+      const op = operation as any;
+      const operationId = op.operationId || `${method}_${path.replace(/\W/g, "_")}`;
+      const summary = op.summary || op.description || `${method.toUpperCase()} ${path}`;
+
+      const properties: Record<string, ToolParameter> = {};
+      const required: string[] = [];
+
+      // Path parameters
+      if (op.parameters) {
+        for (const param of op.parameters) {
+          if (param.in === "path" || param.in === "query") {
+            properties[param.name] = {
+              type: param.schema?.type || "string",
+              description: param.description,
+              ...(param.schema?.enum && { enum: param.schema.enum }),
+            };
+            if (param.required) required.push(param.name);
+          }
+        }
+      }
+
+      // Request body
+      if (op.requestBody?.content?.["application/json"]?.schema) {
+        properties.body = {
+          type: "object",
+          description: "Request body",
+        };
+      }
+
+      tools.push({
+        name: operationId,
+        description: summary.substring(0, 200),
+        inputSchema: {
+          type: "object",
+          properties,
+          ...(required.length > 0 && { required }),
+        },
+        method: method.toUpperCase(),
+        path,
+      });
+    }
+  }
+
+  return tools;
+}
+
+async function makeRequest(tool: Tool, args: Record<string, any>): Promise<any> {
+  // Support both OpenAPI 3.0 (servers) and Swagger 2.0 (host + basePath)
+  const apiSpec = API_SPEC as any;
+  let baseUrl = "https://api.example.com";
+
+  if (apiSpec.servers && apiSpec.servers.length > 0) {
+    // OpenAPI 3.0
+    baseUrl = apiSpec.servers[0].url;
+  } else if (apiSpec.host) {
+    // Swagger 2.0
+    const scheme = apiSpec.schemes?.[0] || "https";
+    const basePath = apiSpec.basePath || "";
+    baseUrl = `${scheme}://${apiSpec.host}${basePath}`;
+  }
+
+  let url = baseUrl + tool.path;
+
+  // Replace path parameters
+  for (const [key, value] of Object.entries(args)) {
+    if (url.includes(`{${key}}`)) {
+      url = url.replace(`{${key}}`, encodeURIComponent(String(value)));
+    }
+  }
+
+  // Add query parameters
+  const queryParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(args)) {
+    if (!tool.path.includes(`{${key}}`) && key !== "body") {
+      queryParams.append(key, String(value));
+    }
+  }
+
+  if (queryParams.toString()) {
+    url += "?" + queryParams.toString();
+  }
+
+  const options: RequestInit = {
+    method: tool.method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  if (args.body && ["POST", "PUT", "PATCH"].includes(tool.method)) {
+    options.body = JSON.stringify(args.body);
+  }
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  return {
+    status: response.status,
+    data,
+  };
+}
+
+const server = new Server(
+  {
+    name: "bclaws",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+const tools = generateTools();
+
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: tools.map(({ method, path, ...tool }) => tool),
+}));
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const tool = tools.find((t) => t.name === request.params.name);
+  if (!tool) {
+    throw new Error(`Unknown tool: ${request.params.name}`);
+  }
+
+  try {
+    const result = await makeRequest(tool, request.params.arguments || {});
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error: any) {
+    return {
+      content: [{ type: "text", text: `Error: ${error.message}` }],
+      isError: true,
+    };
+  }
+});
+
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+main();
